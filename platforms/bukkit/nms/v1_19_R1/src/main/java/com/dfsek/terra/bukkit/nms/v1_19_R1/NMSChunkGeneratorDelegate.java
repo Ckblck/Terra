@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -212,7 +213,14 @@ public class NMSChunkGeneratorDelegate extends ChunkGenerator {
     public List<ChunkPos> getRingPositionsFor(@NotNull ConcentricRingsStructurePlacement structurePlacement,
                                               @NotNull RandomState noiseConfig) {
         ensureStructuresGenerated(noiseConfig);
-        return ringPositions.get(structurePlacement).value();
+        
+        try {
+            Lazy<List<ChunkPos>> lazy = ringPositions.getOrDefault(structurePlacement, null);
+            
+            return lazy == null ? null : lazy.value();
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
     }
     
     private void populateStrongholdData(RandomState noiseConfig) {
